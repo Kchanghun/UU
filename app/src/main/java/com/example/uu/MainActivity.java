@@ -58,6 +58,10 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment_login).commit();
 
 
+        title.setText("Recruitment");
+        selectedFragment=new fragment_recruitment();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,selectedFragment).commit();
+
         ImageButton profile=(ImageButton)findViewById(R.id.profile);
         profile.setOnClickListener(new View.OnClickListener() {
             @Override

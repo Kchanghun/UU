@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "784349917115",
+    "project_id": "doubleu-2df72",
+    "storage_bucket": "doubleu-2df72.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:784349917115:android:e7c22ff4e8a98e8cfa9e9e",
+        "android_client_info": {
+          "package_name": "com.example.uu"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "784349917115-i15rand5ngmob87ltct1ar8f76nqm32n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTFGp-Z22EWqVcpn0Sw7cjzMRZMKjLrl0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "784349917115-i15rand5ngmob87ltct1ar8f76nqm32n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
