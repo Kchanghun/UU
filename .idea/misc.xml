@@ -56,6 +56,7 @@
         <entry key="..\:/Users/kkch1/AndroidStudioProjects/UU/app/src/main/res/layout/activity_loading.xml" value="0.36614583333333334" />
         <entry key="..\:/Users/kkch1/AndroidStudioProjects/UU/app/src/main/res/layout/activity_lounge.xml" value="0.2125" />
         <entry key="..\:/Users/kkch1/AndroidStudioProjects/UU/app/src/main/res/layout/activity_main.xml" value="0.2125" />
+        <entry key="..\:/Users/kkch1/AndroidStudioProjects/UU/app/src/main/res/layout/activity_test_draw_line.xml" value="0.25" />
         <entry key="..\:/Users/kkch1/AndroidStudioProjects/UU/app/src/main/res/layout/dialog_detail_recruit.xml" value="0.23333333333333334" />
         <entry key="..\:/Users/kkch1/AndroidStudioProjects/UU/app/src/main/res/layout/dialog_recruit.xml" value="0.33" />
         <entry key="..\:/Users/kkch1/AndroidStudioProjects/UU/app/src/main/res/layout/draw_map.xml" value="0.19" />
@@ -66,7 +67,7 @@
         <entry key="..\:/Users/kkch1/AndroidStudioProjects/UU/app/src/main/res/layout/fragment_record.xml" value="0.225" />
         <entry key="..\:/Users/kkch1/AndroidStudioProjects/UU/app/src/main/res/layout/fragment_record_achievements.xml" value="0.23333333333333334" />
         <entry key="..\:/Users/kkch1/AndroidStudioProjects/UU/app/src/main/res/layout/fragment_record_results.xml" value="0.23333333333333334" />
-        <entry key="..\:/Users/kkch1/AndroidStudioProjects/UU/app/src/main/res/layout/fragment_recruitment.xml" value="0.2125" />
+        <entry key="..\:/Users/kkch1/AndroidStudioProjects/UU/app/src/main/res/layout/fragment_recruitment.xml" value="0.1" />
         <entry key="..\:/Users/kkch1/AndroidStudioProjects/UU/app/src/main/res/layout/fragment_recruitment_crew.xml" value="0.25" />
         <entry key="..\:/Users/kkch1/AndroidStudioProjects/UU/app/src/main/res/layout/item_message.xml" value="0.25" />
         <entry key="..\:/Users/kkch1/AndroidStudioProjects/UU/app/src/main/res/layout/item_message_fromMe.xml" value="0.19895833333333332" />

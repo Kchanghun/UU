@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
@@ -19,6 +20,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
@@ -26,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -35,10 +39,21 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.Dot;
 import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.DirectionsApiRequest;
+import com.google.maps.GeoApiContext;
+import com.google.maps.PendingResult;
+import com.google.maps.internal.PolylineEncoding;
+import com.google.maps.model.DirectionsResult;
+import com.google.maps.model.DirectionsRoute;
+import com.google.maps.model.TravelMode;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -53,6 +68,7 @@ import java.util.List;
 
 public class DrawingMapActivity extends AppCompatActivity  implements OnMapReadyCallback,
         GoogleMap.OnPolylineClickListener{
+    private static final String API_KEY="AIzaSyCtR1gj33Jv0oDKpb7PyHVYlXXJsFRp_KQ";
     private Uri mapUri;
     public static String TAG="draw_map";
     static boolean isDrawing=false;
@@ -63,15 +79,28 @@ public class DrawingMapActivity extends AppCompatActivity  implements OnMapReady
     private static final PatternItem GAP = new Gap(PATTERN_GAP_LENGTH_PX);
     private static final List<LatLng> checkpoint=new ArrayList<>();
     private static final List<PatternItem> PATTERN_POLYLINE_DOTTED = Arrays.asList(GAP, DOT);
+    private GeoApiContext mGeoApiContext=null;
+    private Context context=this;
+
+    private int duration=0;
+
+    private boolean hasMap=false;
+    /*Test*/
+    private TextView test;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drawing_map);
+        test=findViewById(R.id.seeResult);
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.make_route);
         mapFragment.getMapAsync(this);
-
+        if(mGeoApiContext==null){
+            mGeoApiContext=new GeoApiContext.Builder().apiKey(API_KEY).build();
+            //mGeoApiContext=new GeoApiContext.Builder().apiKey(getString(R.string.GMP_KEY)).build();
+        }
         //mBitmapCreatedListener=(OnBitmapCreatedListener) this;
 
         ImageButton undo=(ImageButton)findViewById(R.id.undo);
@@ -113,6 +142,7 @@ public class DrawingMapActivity extends AppCompatActivity  implements OnMapReady
             @Override
             public void onClick(View view) {
                 getURLOfMap();
+                hasMap=true;
             }
         });
 
@@ -121,14 +151,73 @@ public class DrawingMapActivity extends AppCompatActivity  implements OnMapReady
             @Override
             public void onClick(View view) {
                 checkpoint.clear();
-                setResult(Activity.RESULT_OK,new Intent().putExtra("mapUri",mapUri));
+                if(hasMap) {
+                    setResult(Activity.RESULT_OK, new Intent().putExtra("mapUri", mapUri));
+                }
                 finish();
             }
         });
 
 
     }
+    private void addPolylinesToMap(final DirectionsResult result){
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "run: result routes: " + result.routes.length);
 
+                for(DirectionsRoute route: result.routes){
+                    Log.d(TAG, "run: leg: " + route.legs[0].toString());
+                    List<com.google.maps.model.LatLng> decodedPath = PolylineEncoding.decode(result.routes[0].overviewPolyline.getEncodedPath());
+
+                    List<LatLng> newDecodedPath = new ArrayList<>();
+
+                    // This loops through all the LatLng coordinates of ONE polyline.
+                    for(com.google.maps.model.LatLng latLng: decodedPath){
+
+//                        Log.d(TAG, "run: latlng: " + latLng.toString());
+
+                        newDecodedPath.add(new LatLng(
+                                latLng.lat,
+                                latLng.lng
+                        ));
+                    }
+                    Polyline polyline = mMap.addPolyline(new PolylineOptions().addAll(newDecodedPath));
+                    polyline.setColor(ContextCompat.getColor(context, R.color.blue));
+                    polyline.setClickable(true);
+
+                }
+            }
+        });
+    }
+    private void calculateDirections(LatLng markerPosition){
+        Log.d(TAG, "calculateDirections: calculating directions.");
+
+        test.setText("calculateDirections: calculating directions.");
+        com.google.maps.model.LatLng destination = new com.google.maps.model.LatLng(
+                markerPosition.latitude,markerPosition.longitude
+        );
+        DirectionsApiRequest directions = new DirectionsApiRequest(mGeoApiContext);
+        directions.alternatives(true);
+        directions.mode(TravelMode.TRANSIT);
+        directions.origin(
+                new com.google.maps.model.LatLng(37.5779805, 126.977364)
+        );
+        Log.d(TAG, "calculateDirections: destination: " + destination.toString());
+        directions.destination(destination).setCallback(new PendingResult.Callback<DirectionsResult>() {
+            @Override
+            public void onResult(DirectionsResult result) {
+                Log.d(TAG, "calculateDirections: routes: " + result.routes[0].toString());
+                Log.d(TAG, "calculateDirections: duration: " + result.routes[0].legs[0].steps[0].duration);
+                Log.d(TAG, "calculateDirections: geocodedWayPoints: " + result.geocodedWaypoints[0].toString());
+                addPolylinesToMap(result);
+            }
+            @Override
+            public void onFailure(Throwable e) {
+                Log.e("TAG", "calculateDirections: Failed to get directions: " + e.getMessage() );
+            }
+        });
+    }
     @Override
     public void onPolylineClick(@NonNull Polyline polyline) {
         // Flip from solid stroke to dotted stroke pattern.
@@ -161,6 +250,8 @@ public class DrawingMapActivity extends AppCompatActivity  implements OnMapReady
                     //animation for zoom
                     //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,10));
                     mMap.addMarker(markerOptions);
+                    test.setText("onMapClick");
+                    calculateDirections(latLng);
                 }
                 else{
                     checkpoint.add(latLng);
@@ -169,6 +260,7 @@ public class DrawingMapActivity extends AppCompatActivity  implements OnMapReady
             }
         });
     }
+
     public void getURLOfMap() {
         GoogleMap.SnapshotReadyCallback callback = new GoogleMap.SnapshotReadyCallback() {
             @RequiresApi(api = Build.VERSION_CODES.S)
